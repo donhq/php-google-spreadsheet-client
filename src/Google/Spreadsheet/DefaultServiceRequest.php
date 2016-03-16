@@ -47,6 +47,13 @@ class DefaultServiceRequest implements ServiceRequestInterface
     protected $headers = array();
 
     /**
+     * Request curlProxy
+     * 
+     * @var array
+     */
+    protected $curlProxy = array();
+
+    /**
      * Service url
      * 
      * @var string
@@ -66,10 +73,11 @@ class DefaultServiceRequest implements ServiceRequestInterface
      * @param string $accessToken
      * @param string $tokenType
      */
-    public function __construct($accessToken, $tokenType = 'OAuth')
+    public function __construct($accessToken, $curlProxy = [], $tokenType = 'OAuth')
     {
         $this->accessToken = $accessToken;
         $this->tokenType = $tokenType;
+        $this->curlProxy = $curlProxy;
     }
 
     /**
@@ -252,6 +260,12 @@ class DefaultServiceRequest implements ServiceRequestInterface
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
+        if (count($this->curlProxy) > 0) {
+            foreach ($this->curlProxy as $key => $value) {
+                curl_setopt($ch, constant('CURLOPT_'.str_replace('CURLOPT_', '', strtoupper($key))), $value);
+            }
+        }
+
         return $ch;       
     }
 
